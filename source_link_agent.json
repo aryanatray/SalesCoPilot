@@ -1,0 +1,147 @@
+{
+  "name": "Delivery_source_link_agent",
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "load",
+        "prompt": "={{ $json.query }}",
+        "topK": 10,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "d02a482d-cac1-4a6e-870f-8d90d28ebeee",
+      "name": "Qdrant Vector Store1",
+      "credentials": {
+        "qdrantApi": {
+          "id": "ml3vhFcFQp5NYjze",
+          "name": "QDRANT_API_KEY"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        304,
+        224
+      ],
+      "id": "8a8b4503-95d7-49a1-bc10-8fedcb16decc",
+      "name": "Embeddings Google Gemini3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Br6beBEsYgzM0TFc",
+          "name": "GEMINI_API_KEY_1"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        800,
+        0
+      ],
+      "id": "38d69209-1961-4c1e-adfd-b17655c9e30b",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  return {\n    json: {\n      file_weburl: item.json.document.metadata.file_weburl,\n      score: item.json.score\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        576,
+        0
+      ],
+      "id": "b9cf8cb7-0a27-4d88-bc2b-71f19cb84a53",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "6277d45a-b5d2-4488-a58c-76dc1aa44fc5",
+      "name": "When Executed by Another Workflow"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "query": "Which documnet has information about flash AI"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Qdrant Vector Store1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini3": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Qdrant Vector Store1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "008bb575-dcb0-4f1a-a9e9-147d7516b3b9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "18a0b7d53c5a41a572da1a35904c285660c64c5a7e6e8cec40e38822aa6cba52"
+  },
+  "id": "98FYyx42l28c9dWO",
+  "tags": []
+}
